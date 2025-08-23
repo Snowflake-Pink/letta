@@ -430,6 +430,35 @@ def test_insert_archival_memory(client: LettaSDKClient, agent: AgentState):
     assert "This is a test passage" not in passage_texts, f"Memory was not deleted: {passage_texts}"
 
 
+def test_modify_archival_memory_partial_update(client: LettaSDKClient, agent: AgentState):
+    """Ensure we can modify a passage by updating only text without embedding fields."""
+    # Create a passage
+    created = client.agents.passages.create(
+        agent_id=agent.id,
+        text="Original passage text",
+    )
+    assert created is not None and created.id is not None
+
+    # Perform partial update (only text). embedding and embedding_config are intentionally omitted
+    updated_text = "Updated passage text (partial update)"
+    modified = client.agents.passages.modify(
+        agent_id=agent.id,
+        memory_id=created.id,
+        id=created.id,
+        text=updated_text,
+    )
+    assert modified is not None
+
+    # Retrieve and verify the passage text was updated
+    passages = client.agents.passages.list(agent_id=agent.id)
+    target = next((p for p in passages if p.id == created.id), None)
+    assert target is not None, "Modified passage not found after update"
+    assert target.text == updated_text, f"Passage text not updated, got: {target.text}"
+
+    # Cleanup
+    client.agents.passages.delete(agent_id=agent.id, memory_id=created.id)
+
+
 def test_function_return_limit(disable_e2b_api_key, client: LettaSDKClient, agent: AgentState):
     """Test to see if the function return limit works"""
 

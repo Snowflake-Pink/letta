@@ -1135,8 +1135,9 @@ class SyncServer(Server):
         return passages
 
     def modify_archival_memory(self, agent_id: str, memory_id: str, passage: PassageUpdate, actor: User) -> List[Passage]:
-        passage = Passage(**passage.model_dump(exclude_unset=True, exclude_none=True))
-        passages = self.passage_manager.update_passage_by_id(passage_id=memory_id, passage=passage, actor=actor)
+        # Allow partial updates by forwarding only provided fields without converting to Passage
+        partial_update = PassageUpdate(**passage.model_dump(exclude_unset=True, exclude_none=True))
+        passages = self.passage_manager.update_passage_by_id(passage_id=memory_id, passage=partial_update, actor=actor)
         return passages
 
     async def delete_archival_memory_async(self, memory_id: str, actor: User):
