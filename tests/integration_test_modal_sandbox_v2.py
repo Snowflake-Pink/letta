@@ -90,12 +90,12 @@ def basic_tool(test_user):
         source_code="""
 def calculate(operation: str, a: float, b: float) -> float:
     '''Perform a calculation on two numbers.
-    
+
     Args:
         operation: The operation to perform (add, subtract, multiply, divide)
         a: The first number
         b: The second number
-    
+
     Returns:
         float: The result of the calculation
     '''
@@ -145,11 +145,11 @@ import asyncio
 
 async def fetch_data(url: str, delay: float = 0.1) -> Dict:
     '''Simulate fetching data from a URL.
-    
+
     Args:
         url: The URL to fetch data from
         delay: The delay in seconds before returning
-    
+
     Returns:
         Dict: A dictionary containing the fetched data
     '''
@@ -194,17 +194,17 @@ import hashlib
 
 def process_json(data: str) -> Dict:
     '''Process JSON data and return metadata.
-    
+
     Args:
         data: The JSON string to process
-    
+
     Returns:
         Dict: Metadata about the JSON data
     '''
     try:
         parsed = json.loads(data)
         data_hash = hashlib.md5(data.encode()).hexdigest()
-        
+
         return {
             "valid": True,
             "keys": list(parsed.keys()) if isinstance(parsed, dict) else None,

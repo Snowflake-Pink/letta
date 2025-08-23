@@ -1135,10 +1135,18 @@ class SyncServer(Server):
         return passages
 
     def modify_archival_memory(self, agent_id: str, memory_id: str, passage: PassageUpdate, actor: User) -> List[Passage]:
-        # Allow partial updates by forwarding only provided fields without converting to Passage
-        partial_update = PassageUpdate(**passage.model_dump(exclude_unset=True, exclude_none=True))
-        passages = self.passage_manager.update_passage_by_id(passage_id=memory_id, passage=partial_update, actor=actor)
-        return passages
+        # Merge the partial update with the existing passage to construct a full Passage
+        current = self.passage_manager.get_agent_passage_by_id(passage_id=memory_id, actor=actor)
+        current_data = current.model_dump(exclude_none=True)
+        update_data = passage.model_dump(exclude_unset=True, exclude_none=True)
+        merged_data = {**current_data, **update_data}
+        full_passage = Passage(**merged_data)
+
+        # Use agent-specific updater to satisfy type checking and update only provided fields
+        updated = self.passage_manager.update_agent_passage_by_id(
+            passage_id=memory_id, passage=full_passage, actor=actor
+        )
+        return [updated] if isinstance(updated, Passage) else [updated] if updated else []
 
     async def delete_archival_memory_async(self, memory_id: str, actor: User):
         # TODO check if it exists first, and throw error if not
