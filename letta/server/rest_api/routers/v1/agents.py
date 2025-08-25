@@ -841,6 +841,7 @@ async def list_passages(
     ascending: bool | None = Query(
         True, description="Whether to sort passages oldest to newest (True, default) or newest to oldest (False)"
     ),
+    embed_query: bool | None = Query(False, description="Whether to use vector search (embed query text)."),
     actor_id: str | None = Header(None, alias="user_id"),  # Extract user_id from header, default to None if not present
 ):
     """
@@ -856,6 +857,7 @@ async def list_passages(
         query_text=search,
         limit=limit,
         ascending=ascending,
+        embed_query=embed_query,
     )
 
 

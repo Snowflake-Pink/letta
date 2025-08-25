@@ -1112,17 +1112,33 @@ class SyncServer(Server):
         limit: Optional[int] = 100,
         query_text: Optional[str] = None,
         ascending: Optional[bool] = True,
+        embed_query: Optional[bool] = False,
     ) -> List[Passage]:
         # iterate over records
-        records = await self.agent_manager.list_agent_passages_async(
-            actor=actor,
-            agent_id=agent_id,
-            after=after,
-            query_text=query_text,
-            before=before,
-            ascending=ascending,
-            limit=limit,
-        )
+        if embed_query:
+            # Retrieve agent embedding config and enable vector search
+            agent_state = await self.agent_manager.get_agent_by_id_async(agent_id=agent_id, actor=actor)
+            records = await self.agent_manager.list_agent_passages_async(
+                actor=actor,
+                agent_id=agent_id,
+                after=after,
+                query_text=query_text,
+                before=before,
+                ascending=ascending,
+                limit=limit,
+                embed_query=True,
+                embedding_config=agent_state.embedding_config,
+            )
+        else:
+            records = await self.agent_manager.list_agent_passages_async(
+                actor=actor,
+                agent_id=agent_id,
+                after=after,
+                query_text=query_text,
+                before=before,
+                ascending=ascending,
+                limit=limit,
+            )
         return records
 
     async def insert_archival_memory_async(self, agent_id: str, memory_contents: str, actor: User) -> List[Passage]:
